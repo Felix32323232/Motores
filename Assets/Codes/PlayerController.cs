@@ -6,20 +6,24 @@ using UnityEngine.Scripting.APIUpdating;
 
 public class PlayerController : MonoBehaviour
 {
+
     NavMeshAgent agent;
     InputAction m_interactAction;
+    InputAction[] m_switchWeaponActions;
+    IWeapon currentWeapon;
     ActionMap input;
+
+    [SerializeField] GameObject[] Weapons = new GameObject[3];
+
     public enum TargetType
     { none, enemy, position }
 
     [SerializeField] LayerMask mask;
-    [SerializeField] float AttackRange = 5f;
-    [SerializeField] float Cooldown = 0.5f;
 
     Vector3 MousePosition = new Vector3();
     Target target = new Target(TargetType.none,new RaycastHit());
 
-    bool canShoot = true;
+
 
 
     void Awake()
@@ -28,6 +32,21 @@ public class PlayerController : MonoBehaviour
         input = new ActionMap();
         input.Main.Enable();
         m_interactAction = input.Main.Interact;
+        m_switchWeaponActions = new InputAction[3] { input.Main.Gun1, input.Main.Gun2, input.Main.Gun3 };
+    }
+    void Start()
+    {
+        
+        for (int i = 0; i < Weapons.Length; i++)
+        {
+                        if (i == 0) currentWeapon = Weapons[i].GetComponent<IWeapon>();
+                        else
+                        {
+                             Weapons[i].SetActive(false);
+                        }
+        }
+        currentWeapon = Weapons[0].GetComponent<IWeapon>();
+        Debug.Log(Weapons[0].GetComponent<IWeapon>());
     }
     public struct Target
     {
@@ -50,12 +69,15 @@ public class PlayerController : MonoBehaviour
                 case TargetType.enemy:
                     agent.destination = target.Hit.transform.position;
                     float distance = Vector3.Distance(transform.position, agent.destination);
-                    if (distance <= AttackRange & canShoot)
+
+                    Debug.Log(currentWeapon);
+
+                    if (distance <= currentWeapon.GetRange())
                     {
-                        canShoot = false;
+                        Debug.Log("Shoot");
                         agent.isStopped = true;
                         transform.LookAt(agent.destination);
-                        Shoot();
+                        currentWeapon.Shoot(target.Hit.transform.GetComponent<EnemyController>());
                     }
 
                     break;
@@ -98,9 +120,9 @@ public class PlayerController : MonoBehaviour
             Gizmos.DrawWireSphere(agent.destination, 0.5f);
         }
         Gizmos.color = new Color(1f, 0f, 0f, 1f);
-        Gizmos.DrawWireSphere(transform.position,AttackRange);
+        if(currentWeapon != null) Gizmos.DrawWireSphere(transform.position,currentWeapon.GetRange());
     }
-    void Shoot()
+    /*void Shoot()
     {
         canShoot = false;
         Debug.Log("Shoot");
@@ -111,5 +133,5 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(Cooldown);
         canShoot = true;
-    } 
+    } */
 }

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1a90350a51d9ad1479b8c54184d0c930, type: 3}
-  m_Name: GlockData
+  m_Name: GunData
   m_EditorClassIdentifier: 
-  damage: 0
-  range: 0
-  fireRate: 0
-  maxAmmoCapacity: 0
-  reloadTime: 0
+  damage: 10
+  range: 10
+  fireRate: 0.5
+  maxAmmoCapacity: 10
+  reloadTime: 2
