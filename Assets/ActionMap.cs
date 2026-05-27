@@ -238,6 +238,7 @@ public partial class @ActionMap: IInputActionCollection2, IDisposable
     public void Enable()
     {
         asset.Enable();
+
     }
 
     /// <inheritdoc cref="UnityEngine.InputSystem.InputActionAsset.Disable()" />

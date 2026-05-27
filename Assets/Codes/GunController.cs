@@ -8,15 +8,20 @@ public class GunController : MonoBehaviour, IWeapon
     [SerializeField] Transform barrel;
 
     int curAmmo;
-    bool CanShoot = true;
+    bool isReloading = false; 
+
+    private float nextTimeToFire = 0f;
 
     void Awake()
     {
         curAmmo = GunData.maxAmmoCapacity;
     }
-    public void Shoot(EnemyController enemy) 
-    { 
-        if (CanShoot == false) return;
+
+    public void Shoot(EnemyController enemy)
+    {
+        if (curAmmo <= 0 || isReloading || Time.time < nextTimeToFire) return;
+
+        nextTimeToFire = Time.time + GunData.fireRate;
 
         Debug.Log("Shooting...");
 
@@ -29,45 +34,45 @@ public class GunController : MonoBehaviour, IWeapon
         {
             endPoint = hit.point;
 
-            if (hit.transform.GetComponent<EnemyController>())
+            EnemyController enemyHit = hit.transform.GetComponent<EnemyController>();
+            if (enemyHit != null)
             {
-                hit.transform.GetComponent<EnemyController>().GetDamaged(GunData.damage);
+                enemyHit.GetDamaged(GunData.damage);
             }
         }
         else
         {
             endPoint = origin + direction * GunData.range;
         }
+
         curAmmo--;
-
         Debug.Log("Ammo: " + curAmmo);
-        
-        if (curAmmo <= 0) Reload();
 
-
-
+        if (curAmmo <= 0)
+        {
+            Reload();
+        }
     }
+
     public void Reload()
     {
-        CanShoot = false;
-        StartCoroutine(WaitReloadTime());
+        if (isReloading) return;
 
+        StartCoroutine(WaitReloadTime());
     }
+
     public float GetRange() { return GunData.range; }
     public void SwitchWeapon() { }
 
-    IEnumerator WaitFireRate()
-    {
-        CanShoot = false;
-        yield return new WaitForSeconds(GunData.fireRate);
-        CanShoot = true;
-    }
     IEnumerator WaitReloadTime()
     {
+        isReloading = true;
         Debug.Log("Reloading...");
+
         yield return new WaitForSeconds(GunData.reloadTime);
+
         curAmmo = GunData.maxAmmoCapacity;
-        CanShoot = true;
+        isReloading = false;
         Debug.Log("Reloaded");
     }
 }

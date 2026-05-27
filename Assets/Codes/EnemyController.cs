@@ -6,10 +6,12 @@ public class EnemyController : MonoBehaviour
 {
     NavMeshAgent agent;
     [SerializeField] GameObject target;
-    [SerializeField] EnemyData1 enemyData;
+    [SerializeField]  public EnemyData1 enemyData;
 
     float maxHealth;
     float currentHealth;
+
+    public static int eliminados;
 
     void Start()
     {
@@ -42,6 +44,8 @@ public class EnemyController : MonoBehaviour
         if (currentHealth <= 0)
         {
             Destroy(this.gameObject);
+            eliminados++;
+            Debug.Log("Enemy Eliminated. Total Eliminated: " + eliminados);
         }
     }
 
